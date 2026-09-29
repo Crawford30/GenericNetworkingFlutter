@@ -57,14 +57,14 @@ void main() {
 
   group('serialization', () {
     test('deserializes object and list responses', () async {
-      final user = await client.get('users/1', Deserializer.object(User.fromJson));
+      final user = await client.getAPI('users/1', Deserializer.object(User.fromJson));
       expect(user.name, 'Ada');
 
       adapter.responder = (_) => jsonBody([
             {'id': 1, 'name': 'Ada'},
             {'id': 2, 'name': 'Linus'},
           ]);
-      final users = await client.get('users', Deserializer.list(User.fromJson));
+      final users = await client.getAPI('users', Deserializer.list(User.fromJson));
       expect(users.map((u) => u.name), ['Ada', 'Linus']);
     });
 
@@ -75,12 +75,12 @@ void main() {
               {'id': 3, 'name': 'Grace'}
             ],
           });
-      final users = await client.get('users', Deserializer.paginated('results', User.fromJson));
+      final users = await client.getAPI('users', Deserializer.paginated('results', User.fromJson));
       expect(users.single.name, 'Grace');
     });
 
     test('serializes JsonSerializable body with ISO dates', () async {
-      await client.post(
+      await client.postAPI(
         'users',
         Deserializer.object(User.fromJson),
         body: User(id: 9, name: 'New', joined: DateTime.utc(2026, 1, 2)),
@@ -95,7 +95,7 @@ void main() {
     test('wrong shape raises a serialization error', () async {
       adapter.responder = (_) => jsonBody([1, 2]);
       expect(
-        () => client.get('users/1', Deserializer.object(User.fromJson)),
+        () => client.getAPI('users/1', Deserializer.object(User.fromJson)),
         throwsA(isA<ApiException>()
             .having((e) => e.type, 'type', NetworkErrorType.serialization)),
       );
@@ -103,14 +103,14 @@ void main() {
 
     test('204 with noBody deserializer succeeds', () async {
       adapter.responder = (_) => jsonBody(null, status: 204);
-      await client.delete('users/1');
+      await client.deleteAPI('users/1');
       expect(adapter.last.method, 'DELETE');
     });
   });
 
   group('headers and session', () {
     test('adds config, session and bearer headers', () async {
-      await client.get('users/1', Deserializer.raw, headers: {'X-Custom': 'yes'});
+      await client.getAPI('users/1', Deserializer.raw, headers: {'X-Custom': 'yes'});
       final h = adapter.last.headers;
       expect(adapter.last.uri.toString(), 'https://api.test/v1/users/1');
       expect(h['Authorization'], 'Bearer abc');
@@ -122,14 +122,14 @@ void main() {
     });
 
     test('external requests skip auth and config headers', () async {
-      await client.get('https://other.test/x', Deserializer.raw, isExternal: true);
+      await client.getAPI('https://other.test/x', Deserializer.raw, isExternal: true);
       expect(adapter.last.uri.host, 'other.test');
       expect(adapter.last.headers.containsKey('Authorization'), isFalse);
       expect(adapter.last.headers.containsKey('X-Api-Key'), isFalse);
     });
 
     test('drops null query parameters', () async {
-      await client.get('users', Deserializer.raw, queryParameters: {'page': 2, 'q': null});
+      await client.getAPI('users', Deserializer.raw, queryParameters: {'page': 2, 'q': null});
       expect(adapter.last.uri.queryParameters, {'page': '2'});
     });
   });
@@ -138,7 +138,7 @@ void main() {
     test('401 calls unauthorized handler', () async {
       adapter.responder = (_) => jsonBody({'detail': 'Token expired'}, status: 401);
       await expectLater(
-        client.get('me', Deserializer.raw),
+        client.getAPI('me', Deserializer.raw),
         throwsA(isA<ApiException>()
             .having((e) => e.type, 'type', NetworkErrorType.unauthorized)
             .having((e) => e.message, 'message', 'Token expired')),
@@ -149,7 +149,7 @@ void main() {
     test('401 on external request does not log out', () async {
       adapter.responder = (_) => jsonBody({}, status: 401);
       await expectLater(
-        client.get('https://other.test', Deserializer.raw, isExternal: true),
+        client.getAPI('https://other.test', Deserializer.raw, isExternal: true),
         throwsA(isA<ApiException>()),
       );
       expect(unauthorizedCalls, 0);
@@ -158,7 +158,7 @@ void main() {
     test('500 uses friendly message', () async {
       adapter.responder = (_) => jsonBody({'trace': '...'}, status: 500);
       await expectLater(
-        client.get('x', Deserializer.raw),
+        client.getAPI('x', Deserializer.raw),
         throwsA(isA<ApiException>()
             .having((e) => e.message, 'message', ApiException.serverErrorMessage)),
       );
@@ -170,7 +170,7 @@ void main() {
             'email': ['Enter a valid email.'],
           }, status: 400);
       try {
-        await client.post('users', Deserializer.raw, body: {'email': 'x'});
+        await client.postAPI('users', Deserializer.raw, body: {'email': 'x'});
         fail('should throw');
       } on ApiException catch (e) {
         expect(e.type, NetworkErrorType.validation);
@@ -182,7 +182,7 @@ void main() {
 
     test('ApiResult.guard wraps failures', () async {
       adapter.responder = (_) => jsonBody({'message': 'nope'}, status: 404);
-      final result = await ApiResult.guard(() => client.get('x', Deserializer.raw));
+      final result = await ApiResult.guard(() => client.getAPI('x', Deserializer.raw));
       expect(result.isSuccess, isFalse);
       expect(result.errorOrNull?.type, NetworkErrorType.notFound);
       expect(result.errorOrNull?.message, 'nope');

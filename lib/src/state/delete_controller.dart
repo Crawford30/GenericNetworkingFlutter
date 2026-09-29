@@ -21,7 +21,7 @@ class DeleteController extends RequestController<Object?> {
     void Function(ApiException error)? onError,
   }) {
     return run(
-      () => client.deleteWithResponse<Object?>(
+      () => client.deleteAPIWithResponse<Object?>(
         resolveEndpoint(endpoint, id),
         Deserializer<Object?>((data) => data),
         isExternal: isExternal,

@@ -46,7 +46,7 @@ class FetchController<T> extends RequestController<T> {
     _cancelToken?.cancel();
     final token = _cancelToken = CancelToken();
     return run(
-      () => client.get(
+      () => client.getAPI(
         resolveEndpoint(endpoint, id),
         deserializer,
         queryParameters: this.queryParameters,

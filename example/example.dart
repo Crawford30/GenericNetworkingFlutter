@@ -50,18 +50,18 @@ class PolicyRepository {
   final NetworkingClient client;
 
   Future<List<Policy>> policies() =>
-      client.get('policies/', Deserializer.list(Policy.fromJson));
+      client.getAPI('policies/', Deserializer.list(Policy.fromJson));
 
   Future<Policy> policy(int id) =>
-      client.get('policies/$id/', Deserializer.object(Policy.fromJson));
+      client.getAPI('policies/$id/', Deserializer.object(Policy.fromJson));
 
   Future<Policy> create(Policy policy) =>
-      client.post('policies/', Deserializer.object(Policy.fromJson), body: policy);
+      client.postAPI('policies/', Deserializer.object(Policy.fromJson), body: policy);
 
   Future<Policy> rename(int id, String name) =>
-      client.patch('policies/$id/', Deserializer.object(Policy.fromJson), body: {'name': name});
+      client.patchAPI('policies/$id/', Deserializer.object(Policy.fromJson), body: {'name': name});
 
-  Future<void> remove(int id) => client.delete('policies/$id/');
+  Future<void> remove(int id) => client.deleteAPI('policies/$id/');
 
   Future<void> uploadId(String path, {void Function(double)? onProgress}) =>
       client.uploadDocument(

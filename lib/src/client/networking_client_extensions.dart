@@ -13,13 +13,13 @@ import 'networking_client.dart';
 /// Shorthand verbs returning the deserialized body directly.
 ///
 /// ```dart
-/// final user  = await client.get('users/1', Deserializer.object(User.fromJson));
-/// final users = await client.get('users', Deserializer.list(User.fromJson));
-/// final saved = await client.post('users', Deserializer.object(User.fromJson), body: newUser);
-/// await client.delete('users/1');
+/// final user  = await client.getAPI('users/1', Deserializer.object(User.fromJson));
+/// final users = await client.getAPI('users', Deserializer.list(User.fromJson));
+/// final saved = await client.postAPI('users', Deserializer.object(User.fromJson), body: newUser);
+/// await client.deleteAPI('users/1');
 /// ```
 extension NetworkingClientVerbs on NetworkingClient {
-  Future<T> get<T>(
+  Future<T> getAPI<T>(
     String endpoint,
     Deserializer<T> deserializer, {
     Map<String, Object?>? queryParameters,
@@ -36,7 +36,7 @@ extension NetworkingClientVerbs on NetworkingClient {
         cancelToken: cancelToken,
       ));
 
-  Future<T> post<T>(
+  Future<T> postAPI<T>(
     String endpoint,
     Deserializer<T> deserializer, {
     Object? body,
@@ -49,7 +49,7 @@ extension NetworkingClientVerbs on NetworkingClient {
       _write(HttpMethod.post, endpoint, deserializer, body, queryParameters, headers,
           contentType, isExternal, cancelToken);
 
-  Future<T> put<T>(
+  Future<T> putAPI<T>(
     String endpoint,
     Deserializer<T> deserializer, {
     Object? body,
@@ -62,7 +62,7 @@ extension NetworkingClientVerbs on NetworkingClient {
       _write(HttpMethod.put, endpoint, deserializer, body, queryParameters, headers,
           contentType, isExternal, cancelToken);
 
-  Future<T> patch<T>(
+  Future<T> patchAPI<T>(
     String endpoint,
     Deserializer<T> deserializer, {
     Object? body,
@@ -76,7 +76,7 @@ extension NetworkingClientVerbs on NetworkingClient {
           contentType, isExternal, cancelToken);
 
   /// DELETE ignoring the response body.
-  Future<void> delete(
+  Future<void> deleteAPI(
     String endpoint, {
     Object? body,
     Map<String, Object?>? queryParameters,
@@ -88,7 +88,7 @@ extension NetworkingClientVerbs on NetworkingClient {
           headers, ContentType.json, isExternal, cancelToken);
 
   /// DELETE returning a deserialized body.
-  Future<T> deleteWithResponse<T>(
+  Future<T> deleteAPIWithResponse<T>(
     String endpoint,
     Deserializer<T> deserializer, {
     Object? body,

@@ -5,7 +5,7 @@ A reusable networking layer for Flutter apps. It is modelled on OMNetworkingKit 
 | Concern | Here | OMNetworkingKit / RN equivalent |
 |---|---|---|
 | Client contract | `NetworkingClient`, `DioNetworkingClient` | `OMNetworkingClient` |
-| Verbs | `get` `post` `put` `patch` `delete` `uploadDocument` `downloadDocument` `downloadDocumentBytes` | `getApi`, `postApi`, `uploadToApi`, `downloadFileFromApi` |
+| Verbs | `getAPI` `postAPI` `putAPI` `patchAPI` `deleteAPI` `deleteAPIWithResponse` `uploadDocument` `downloadDocument` `downloadDocumentBytes` | `getApi`, `postApi`, `uploadToApi`, `downloadFileFromApi` |
 | Request | `ApiRequest<T>` | `OMRequest<T>` |
 | Serializing requests | `RequestSerializer`, `JsonSerializable` (ISO-8601 dates) | `JSONEncoder` |
 | Deserializing responses | `Deserializer.object / list / paginated / noBody / raw` | `OmResponseSerializer<T>` |
@@ -49,11 +49,11 @@ Requests: pass a `Map`, a `List`, or any model that implements `JsonSerializable
 Responses: choose a `Deserializer`.
 
 ```dart
-client.get('users/1/', Deserializer.object(User.fromJson));            // User
-client.get('users/', Deserializer.list(User.fromJson));                // List<User>
-client.get('users/', Deserializer.paginated('results', User.fromJson)); // DRF pagination
-client.post('logout/', Deserializer.noBody);                           // void
-client.get('anything/', Deserializer.raw);                             // dynamic
+client.getAPI('users/1/', Deserializer.object(User.fromJson));            // User
+client.getAPI('users/', Deserializer.list(User.fromJson));                // List<User>
+client.getAPI('users/', Deserializer.paginated('results', User.fromJson)); // DRF pagination
+client.postAPI('logout/', Deserializer.noBody);                           // void
+client.getAPI('anything/', Deserializer.raw);                             // dynamic
 Deserializer((json) => custom(json));                                  // anything else
 ```
 
@@ -62,9 +62,9 @@ If a body has the wrong shape, you get `ApiException(type: serialization)` and t
 ## Calls
 
 ```dart
-final user  = await client.post('users/', Deserializer.object(User.fromJson), body: newUser);
-final user2 = await client.patch('users/1/', Deserializer.object(User.fromJson), body: {'name': 'Ada'});
-await client.delete('users/1/');
+final user  = await client.postAPI('users/', Deserializer.object(User.fromJson), body: newUser);
+final user2 = await client.patchAPI('users/1/', Deserializer.object(User.fromJson), body: {'name': 'Ada'});
+await client.deleteAPI('users/1/');
 
 await client.uploadDocument('documents/', Deserializer.noBody,
     files: [UploadableFile.fromPath(path, fieldName: 'document')],
@@ -90,7 +90,7 @@ try { ... } on ApiException catch (e) {
 }
 ```
 
-If you'd rather not use try/catch, use `ApiResult.guard(() => client.get(...))`, then `.when(success:, failure:)`.
+If you'd rather not use try/catch, use `ApiResult.guard(() => client.getAPI(...))`, then `.when(success:, failure:)`.
 
 ## Controllers (hooks equivalent)
 
