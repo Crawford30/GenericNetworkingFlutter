@@ -1,0 +1,19 @@
+name: generic_networking
+description: "Generic networking layer for Flutter apps: typed REST client (get/post/put/patch/delete, upload, download), session/auth headers, 401 handling and ChangeNotifier request controllers."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  connectivity_plus: ^7.3.1
+  dio: ^5.11.1
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
